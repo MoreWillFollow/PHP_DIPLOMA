@@ -2,6 +2,10 @@
 
 include "oop/class/mdPassword.php";
 
+function redirectPageTo ($redirect) {
+    header('Location: '.$redirect.'.php');
+}
+
 /* CONNECTION AND SQL REQUESTS */
 function connect() {
 $pdo = new PDO("mysql:host=localhost; dbname=clvrdgtl_php_dip", "clvrdgtl_php_dip", "netology2017", [
@@ -262,6 +266,102 @@ function listCategory ($action_name) {
     }
     echo "</select>";
 }
+
+
+/* LIST CATEGORY ARRAY*/
+
+function categoryArray ()
+{
+    $pdo = connect();
+    $sql = $pdo->prepare('SELECT * FROM category');
+    $sql->execute();
+    $sql=$sql->fetchAll();
+
+    foreach ($sql as $row) {
+        $array[$row['category_id']] = $row['category'];
+
+        /*    foreach ($sql as $row) {
+        $array[] = array ('category_id' =>$row['category_id'],
+            'category' => $row['category']
+            );*/
+    }
+
+    return $array;
+}
+
+
+/* ANSWERED QUESTIONS ARRAY */
+
+function answeredQuestionsArray () {
+    $pdo = connect();
+    $sql = $pdo->prepare('SELECT * FROM questions WHERE answer IS NOT NULL and publish = TRUE ORDER BY category_id');
+    $sql->execute();
+    $sql = $sql->fetchAll();
+    foreach ($sql as $key=>$value) {
+        /*        $array['question_id'] = $value['question_id'];*/
+        $array[$value['question_id']] = array(
+            'sender_name'=>$value['sender_name'],
+            'email'=>$value['email'],
+            'category_id'=>$value['category_id'],
+            'question'=>$value['question'],
+            'answer'=>$value['answer']);
+    }
+    return $array;
+}
+
+
+
+
+/* FIND CATEGORY NAME BY ID*/
+
+function findCategoryNameByID ($id) {
+    $pdo = connect();
+    $sql = $pdo->prepare('SELECT * FROM category WHERE category_id = :id');
+    $sql->bindParam(':id', $id, PDO::PARAM_INT);
+    $sql->execute();
+    $sql = $sql->fetchAll();
+    return $sql[0]['category'];
+}
+
+
+/* ADD NEW CATEGORY */
+
+function addNewCategory($category_name) {
+    $pdo = connect();
+
+    $check = $pdo->prepare('SELECT * FROM category WHERE category = :category');
+    $check->bindParam(':category', $category_name, PDO::PARAM_STR);
+    $check->execute();
+    $check = $check->fetchAll();
+    if ($check) {
+        return false;
+    }
+
+    $sql = $pdo->prepare('INSERT INTO category (category) VALUE (:category)');
+    $sql->bindParam(':category', $category_name, PDO::PARAM_STR);
+    if ($sql->execute()) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+/* UNANSWERED QUESTIONS ARRAY */
+
+function unansweredQuestionsArray() {
+    $pdo = connect();
+    $sql = $pdo->prepare('SELECT * FROM questions WHERE answer is NULL');
+    $sql = $sql->execute();
+    if ($sql) {
+        return $sql;
+    }
+    else {
+        return false;
+    }
+}
+
 
 
 

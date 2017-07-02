@@ -23,30 +23,25 @@ $user = "Ешкин Кошкин Кот";
 $email = "sobaka@mail.ru";
 $category = 3;
 $question = "Как быть если вопрсо не загружается?";
-function askQuestion($user, $email, $category, $question) {
+
+
+
+function unansweredQuestionsArray() {
     $pdo = connect();
-    $sql = $pdo->prepare('INSERT INTO questions (sender_name, email, category_id, question) VALUES (:sender_name, :email, :category, :question)');
-    $sql->bindParam(':sender_name', $user, PDO::PARAM_STR);
-    $sql->bindParam(':email', $email, PDO::PARAM_STR);
-    $sql->bindParam(':category', $category, PDO::PARAM_STR);
-    $sql->bindParam(':question', $question, PDO::PARAM_STR);
-
+    $sql = $pdo->prepare('SELECT * FROM questions WHERE answer is NULL');
     $sql->execute();
-    return true;
+    $sql = $sql->fetchAll();
+    if ($sql) {
+        return $sql;
+    }
+    else {
+        return false;
+    }
 }
 
+$result = unansweredQuestionsArray();
 
-
-if (askQuestion($user, $email, $category, $question)) {
-
-    echo "Ваш вопрос отправлен. Ждите ответа.";
-}
-else {
-    echo "Ошибка! Введены не все данные.";
-}
-
-
-
+var_dump($result);
 
 ?>
 

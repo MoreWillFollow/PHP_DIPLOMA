@@ -62,6 +62,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['new_admin_name'])) {
 
 }
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['new_category'])) {
+    $result = addNewCategory($_POST['new_category']);
+    if ($result) {
+        echo "Категория ".$_POST['new_category']." создана.";
+    }
+    else {
+        echo "Категория ".$_POST['new_category']." уже существует.";
+    }
+
+}
+
 
 ?>
 
@@ -144,6 +155,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['new_admin_name'])) {
             </label>
 
             <button type="submit">Удалить</button>
+        </form>
+    </details>
+
+    <details>
+        <summary>Добавить новую тему</summary>
+        <form action="admin.php" method="post">
+            <label>Новая категорию:
+                <input type="text" name="new_category" placeholder="Введите новую категорию">
+            </label>
+
+            <button type="submit">Добавить</button>
+        </form>
+    </details>
+
+    <details>
+        <summary>Список ответов без вопросов</summary>
+        <form action="admin.php" method="post">
+            <label>Имя админа:
+                <input type="text" name="new_category" placeholder="Введите новую категорию">
+            </label>
+
+            <button type="submit">Добавить</button>
         </form>
     </details>
 

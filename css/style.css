@@ -454,7 +454,10 @@ header h1 {
 /* MY EDITS */
 
 .admin_link {
-  border-bottom: 10px solid red;
+  border-bottom: 2px solid red;
+}
+.admin ul li {
+  margin-bottom: 15px;
 }
 
 summary {
