@@ -471,3 +471,18 @@ summary {
 .align-center {
   text-align: center!important;
 }
+
+
+th {
+  background-color: lightgrey;
+}
+
+table {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+table, td, th {
+  border:1px solid #D3D3B3;
+  padding: 5px;
+}

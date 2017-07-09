@@ -1,49 +1,3 @@
-<?php
-/**
- * Created by PhpStorm.
- * User: user
- * Date: 28.06.17
- * Time: 2:17
- */
-
-error_reporting(E_ALL);
-echo "<pre>";
-
-/* CONNECTION AND SQL REQUESTS */
-function connect() {
-    $pdo = new PDO("mysql:host=localhost; dbname=clvrdgtl_php_dip", "clvrdgtl_php_dip", "netology2017", [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]);
-    return $pdo;
-}
-
-$password = "admin";
-
-$user = "Ешкин Кошкин Кот";
-$email = "sobaka@mail.ru";
-$category = 3;
-$question = "Как быть если вопрсо не загружается?";
-
-
-
-function unansweredQuestionsArray() {
-    $pdo = connect();
-    $sql = $pdo->prepare('SELECT * FROM questions WHERE answer is NULL');
-    $sql->execute();
-    $sql = $sql->fetchAll();
-    if ($sql) {
-        return $sql;
-    }
-    else {
-        return false;
-    }
-}
-
-$result = unansweredQuestionsArray();
-
-var_dump($result);
-
-?>
 
 <html>
 <head>
@@ -71,3 +25,69 @@ var_dump($result);
 </section>-->
 </body>
 </html>
+
+<?php
+/**
+ * Created by PhpStorm.
+ * User: user
+ * Date: 28.06.17
+ * Time: 2:17
+ */
+
+error_reporting(E_ALL);
+echo "<pre>";
+
+function countQuestionByTheme ($category_id) {
+    $pdo = connect();
+    $sql = $pdo -> prepare('SELECT COUNT(question_id)
+FROM questions;');
+    $sql = $sql->execute();
+
+    return $sql;
+    
+
+}
+
+
+
+/*
+function countQuestionByTheme ($category_id) {
+    $pdo = connect();
+    $sql = $pdo -> prepare('SELECT COUNT (question_id) FROM questions WHERE category_id = :category_id');
+    $sql -> bindParam(':category_id', $category_id, PDO::PARAM_INT);
+    $sql = $sql->execute();
+
+    return $sql;
+
+
+}*/
+
+var_dump(countQuestionByTheme(2));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* CONNECTION AND SQL REQUESTS */
+function connect() {
+    $pdo = new PDO("mysql:host=localhost; dbname=clvrdgtl_php_dip", "clvrdgtl_php_dip", "netology2017", [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    ]);
+    return $pdo;
+}
+
+?>

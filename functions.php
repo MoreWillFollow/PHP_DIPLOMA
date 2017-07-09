@@ -250,6 +250,21 @@ function askQuestion($user, $email, $category, $question) {
 }
 
 
+/* EDIT QUESTION*/
+
+function editQuestion($sender_name, $email, $category_id, $question, $question_id) {
+    $pdo = connect();
+    $sql = $pdo->prepare('UPDATE questions SET sender_name = :sender_name, email = :email, category_id = :category_id, question = :question WHERE question_id = :question_id');
+    $sql->bindParam(':sender_name',$sender_name, PDO::PARAM_STR);
+    $sql->bindParam(':email',$email, PDO::PARAM_STR);
+    $sql->bindParam(':category_id',$category_id, PDO::PARAM_INT);
+    $sql->bindParam(':question',$question, PDO::PARAM_STR);
+    $sql->bindParam(':question_id',$question_id, PDO::PARAM_INT);
+    $sql->execute();
+
+        return true;
+    }
+
 
 /* LIST CATEGORY */
 
@@ -263,6 +278,24 @@ function listCategory ($action_name) {
     foreach ($sql as $row) {
         echo "<option value=\"".$row["category_id"]."\">".$row["category"]."</option>";
 
+    }
+    echo "</select>";
+}
+
+/* CATEGORY LIST IF CHOSEN */
+
+function chosenCaregoryList ($action_name, $categoryID) {
+    $pdo = connect();
+    $sql = $pdo->prepare("SELECT * FROM category");
+    $sql->execute();
+    $sql = $sql->fetchAll();
+    echo "<select name=\"".$action_name."\">";
+    echo "<option value=\"".$categoryID."\">".findCategoryNameByID($categoryID)."</option>";
+
+    foreach ($sql as $row) {
+        if ($row["category_id"] !== $categoryID) {
+        echo "<option value=\"".$row["category_id"]."\">".$row["category"]."</option>";
+        }
     }
     echo "</select>";
 }
@@ -306,7 +339,12 @@ function answeredQuestionsArray () {
             'question'=>$value['question'],
             'answer'=>$value['answer']);
     }
-    return $array;
+    if (!empty($array)) {
+        return $array;
+    }
+    else {
+        return false;
+    }
 }
 
 
@@ -323,6 +361,20 @@ function findCategoryNameByID ($id) {
     return $sql[0]['category'];
 }
 
+
+/* PUBLISHED OR NOT */
+
+function publishedOrNot ($result) {
+    if ($result == 0) {
+        $result = "Не опубликовано";
+        return $result;
+    }
+    elseif ($result == 1) {
+        $result = "Опубликовано";
+        return $result;
+    }
+    return false;
+}
 
 /* ADD NEW CATEGORY */
 
@@ -352,8 +404,9 @@ function addNewCategory($category_name) {
 
 function unansweredQuestionsArray() {
     $pdo = connect();
-    $sql = $pdo->prepare('SELECT * FROM questions WHERE answer is NULL');
-    $sql = $sql->execute();
+    $sql = $pdo->prepare('SELECT * FROM questions WHERE answer is NULL ORDER BY question_id');
+    $sql->execute();
+    $sql = $sql->fetchAll();
     if ($sql) {
         return $sql;
     }
@@ -361,6 +414,91 @@ function unansweredQuestionsArray() {
         return false;
     }
 }
+
+/* QUESTIONS BY ID */
+
+function questionsArrayByID($id) {
+    $pdo = connect();
+    $sql = $pdo->prepare('SELECT * FROM questions WHERE question_id = :question_id');
+    $sql->bindParam(':question_id',$id, PDO::PARAM_INT);
+    $sql->execute();
+    $sql = $sql->fetchAll();
+    if ($sql) {
+        return $sql;
+    }
+    else {
+        return false;
+    }
+}
+
+
+/* ALL QUESTIONS ARRAY */
+
+function allQuestionsArray() {
+    $pdo = connect();
+    $sql = $pdo->prepare('SELECT * FROM questions');
+    $sql->execute();
+    $sql = $sql->fetchAll();
+    if ($sql) {
+        return $sql;
+    }
+    else {
+        return false;
+    }
+}
+
+
+/* DELETE QUESTION BY ID */
+
+function deleteQuestionByID ($id) {
+    $pdo = connect();
+    $sql = $pdo->prepare('DELETE FROM questions WHERE question_id = :question_id');
+    $sql->bindParam(':question_id', $id, PDO::PARAM_INT);
+    $sql = $sql->execute();
+    if ($sql) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+/* MOVE QUESTION */
+
+
+
+/* DELETE CATEGORY AND ANSWERS */
+
+
+function deleteCategory($category_id) {
+    $pdo = connect();
+    $sql = $pdo->prepare('DELETE FROM category WHERE category_id = :category_id');
+    $sql->bindParam(':category_id', $category_id, PDO::PARAM_INT);
+    $sql->execute();
+}
+
+function deleteQuestionsInCategory($category_id) {
+    $pdo = connect();
+    $sql = $pdo->prepare('DELETE FROM questions WHERE category_id = :category_id');
+    $sql->bindParam(':category_id', $category_id, PDO::PARAM_INT);
+    $sql->execute();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

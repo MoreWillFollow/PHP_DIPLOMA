@@ -5,72 +5,92 @@ include "core.php";
 /*echo "<pre>";
 print_r($_POST);*/
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['admin_name'])) {
-    $result = assignNewAdmin($_POST['admin_name']);
-    if ($result) {
-        echo "Админ ".$_POST['admin_name']." назначен администратором.";
-    }
-    else {
-        echo "Пользователь не найден.";
-    }
+if (isMethodPost()) {
 
-}
+    if (!empty($_POST['category_delete'])) {
+        deleteQuestionsInCategory($_POST['category_delete']);
+        deleteCategory($_POST['category_delete']);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['change_admin_password']) and !empty($_POST['new_password'])) {
-    $result = changeAdminPassword($_POST['change_admin_password'], $_POST['new_password']);
-    if ($result) {
-        echo "Пароль ".$_POST['change_admin_password']." изменен на: ".$_POST['new_password'].".";
-    }
-    else {
-        echo "Пользователь не найден.";
     }
 
-}
-
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['demote_admin'])) {
-    $result = demoteAdmin($_POST['demote_admin']);
-    if ($result) {
-        echo "Админ ".$_POST['demote_admin']." разжалован.";
-    }
-    else {
-        echo "Пользователь не является админом либо не найден.";
+    if (!empty($_POST['delete_question'])) {
+        deleteQuestionByID($_POST['delete_question']);
+        echo "Вопрос с ID = ".$_POST['delete_question']." удален.";
     }
 
-}
+    if (!empty($_POST['edit_question'])) {
+        $_SESSION['question_id'] = $_POST['edit_question'];
+        redirectPageTo('question_review');
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['delete_admin'])) {
-    $result = deleteAdmin($_POST['delete_admin']);
-    if ($result) {
-        echo "Админ ".$_POST['delete_admin']." удален.";
-    }
-    else {
-        echo "Пользователь не найден.";
     }
 
-}
+    if (!empty($_POST['admin_name'])) {
+        $result = assignNewAdmin($_POST['admin_name']);
+        if ($result) {
+            echo "Админ ".$_POST['admin_name']." назначен администратором.";
+        }
+        else {
+            echo "Пользователь не найден.";
+        }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['new_admin_name'])) {
-    $result = newNewAdmin($_POST['new_admin_name']);
-    $password = randomPassword();
-    if ($result) {
-        echo "Админ ".$_POST['new_admin_name']." создан. Пароль: ".$password;
-    }
-    else {
-        echo "Пользователь ".$_POST['new_admin_name']." уже существует.";
-    }
-
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['new_category'])) {
-    $result = addNewCategory($_POST['new_category']);
-    if ($result) {
-        echo "Категория ".$_POST['new_category']." создана.";
-    }
-    else {
-        echo "Категория ".$_POST['new_category']." уже существует.";
     }
 
+    if (!empty($_POST['change_admin_password']) and !empty($_POST['new_password'])) {
+        $result = changeAdminPassword($_POST['change_admin_password'], $_POST['new_password']);
+        if ($result) {
+            echo "Пароль ".$_POST['change_admin_password']." изменен на: ".$_POST['new_password'].".";
+        }
+        else {
+            echo "Пользователь не найден.";
+        }
+
+    }
+
+
+    if (!empty($_POST['demote_admin'])) {
+        $result = demoteAdmin($_POST['demote_admin']);
+        if ($result) {
+            echo "Админ ".$_POST['demote_admin']." разжалован.";
+        }
+        else {
+            echo "Пользователь не является админом либо не найден.";
+        }
+
+    }
+
+    if (!empty($_POST['delete_admin'])) {
+        $result = deleteAdmin($_POST['delete_admin']);
+        if ($result) {
+            echo "Админ ".$_POST['delete_admin']." удален.";
+        }
+        else {
+            echo "Пользователь не найден.";
+        }
+
+    }
+
+    if (!empty($_POST['new_admin_name'])) {
+        $result = newNewAdmin($_POST['new_admin_name']);
+        $password = randomPassword();
+        if ($result) {
+            echo "Админ ".$_POST['new_admin_name']." создан. Пароль: ".$password;
+        }
+        else {
+            echo "Пользователь ".$_POST['new_admin_name']." уже существует.";
+        }
+
+    }
+
+    if (!empty($_POST['new_category'])) {
+        $result = addNewCategory($_POST['new_category']);
+        if ($result) {
+            echo "Категория ".$_POST['new_category']." создана.";
+        }
+        else {
+            echo "Категория ".$_POST['new_category']." уже существует.";
+        }
+
+    }
 }
 
 
@@ -80,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['new_category'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin page</title>
 
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
 
@@ -89,6 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['new_category'])) {
 </head>
 <body>
 <section class="admin">
+    <p>Администраторы</p>
+    <hr>
 
     <details>
         <summary>Назначить администратора</summary>
@@ -159,6 +182,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['new_category'])) {
     </details>
 
     <details>
+        <summary>Список администраторов</summary>
+        <ol>
+            <?
+            listAdminLi();
+            ?>
+        </ol>
+    </details>
+    <br><br><br>
+
+    <p>Работа с темами</p>
+    <hr>
+
+
+    <details>
+        <summary>Удалить тему со всеми вопросами</summary>
+        <form action="admin.php" method="post">
+            <label>Удаляемая категория:
+                <?
+                listCategory("category_delete")
+                ?>
+            </label>
+
+            <button type="submit">Удалить категорию и все вопросы в ней</button>
+        </form>
+    </details>
+
+    <details>
         <summary>Добавить новую тему</summary>
         <form action="admin.php" method="post">
             <label>Новая категорию:
@@ -168,26 +218,137 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['new_category'])) {
             <button type="submit">Добавить</button>
         </form>
     </details>
-
     <details>
-        <summary>Список ответов без вопросов</summary>
-        <form action="admin.php" method="post">
-            <label>Имя админа:
-                <input type="text" name="new_category" placeholder="Введите новую категорию">
-            </label>
-
-            <button type="submit">Добавить</button>
-        </form>
+        <summary>Список тем и статистика</summary>
+        <table>
+            <tr>
+                <th>Тема</th>
+                <th>Без ответов</th>
+                <th>Опубликовано</th>
+                <th>Без ответов</th>
+                <th>Всего вопросов</th>
+            </tr>
+        </table>
     </details>
 
+    <br><br><br>
+
+    <p>Работа с вопросами и ответами</p>
+    <hr>
+
+
     <details>
-        <summary>Список администраторов</summary>
-        <ol>
+        <summary>Список вопросов без ответов</summary>
+
+        <table>
+            <tr>
+                <th>ID вопроса</th>
+                <th>Имя отправителья</th>
+                <th>E-mail отправителья</th>
+                <th>Категория вопроса</th>
+                <th>Вопрос</th>
+                <th>Ответ</th>
+                <th>Опубликован</th>
+                <th>Действия</th>
+            </tr>
             <?
-            listAdminLi();
+            $array = unansweredQuestionsArray();
+            foreach ($array as $key=>$value) {
+                echo "<tr>";
+                echo "<td>".$value['question_id']."</td>";
+                echo "<td>".$value['sender_name']."</td>";
+                echo "<td>".$value['email']."</td>";
+                echo "<td>".findCategoryNameByID($value['category_id'])."</td>";
+                echo "<td>".$value['question']."</td>";
+                echo "<td>".$value['answer']."</td>";
+                echo "<td>".publishedOrNot($value['publish'])."</td>";
+                echo "<td>";
+                ?>
+
+                <form action="admin.php" method="post">
+                    <label>
+                        <button type="submit" name="edit_question" value="<?=$value['question_id']?>">Редактировать</button>
+                    </label>
+                </form>
+
+                <form action="admin.php" method="post">
+                    <label>
+                        <button type="submit" name="delete_question" value="<?=$value['question_id']?>">Удалить</button>
+                    </label>
+                </form>
+
+                <?
+                echo "</td>";
+                echo "<tr>";
+
+
+            }
             ?>
-        </ol>
+
+
+        </table>
+
     </details>
+
+    <details>
+        <summary>Список всех вопросов и статусы</summary>
+
+        <table>
+            <tr>
+                <th>ID вопроса</th>
+                <th>Имя отправителья</th>
+                <th>E-mail отправителья</th>
+                <th>Категория вопроса</th>
+                <th>Вопрос</th>
+                <th>Ответ</th>
+                <th>Опубликован</th>
+                <th>Дата добавления</th>
+                <th>Действия</th>
+            </tr>
+            <?
+            $array = allQuestionsArray();
+            foreach ($array as $key=>$value) {
+                echo "<tr>";
+                echo "<td>".$value['question_id']."</td>";
+                echo "<td>".$value['sender_name']."</td>";
+                echo "<td>".$value['email']."</td>";
+                echo "<td>".findCategoryNameByID($value['category_id'])."</td>";
+                echo "<td>".$value['question']."</td>";
+                echo "<td>".$value['answer']."</td>";
+                echo "<td>".publishedOrNot($value['publish'])."</td>";
+                echo "<td>".$value['date_added']."</td>";
+                echo "<td>";
+                ?>
+
+                <form action="admin.php" method="post">
+                    <label>
+                        <button type="submit" name="edit_question" value="<?=$value['question_id']?>">Редактировать</button>
+                    </label>
+                </form>
+
+                <form action="admin.php" method="post">
+                    <label>
+                        <button type="submit" name="delete_question" value="<?=$value['question_id']?>">Удалить</button>
+                    </label>
+                </form>
+
+                <?
+                echo "</td>";
+                echo "<tr>";
+
+
+            }
+            ?>
+
+
+        </table>
+
+    </details>
+
+
+
+
+
 
 
 </section>

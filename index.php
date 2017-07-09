@@ -59,43 +59,62 @@ var_dump($_COOKIE);*/
 /*        echo "<pre>";
         print_r($array);*/
         $header = 0;
-        foreach ($array as $key=>$question_data){
-            if ($header !== $question_data['category_id']) {
-                $header = $question_data['category_id'];
-                $result = findCategoryNameByID($question_data['category_id']);
-            }else {
-                $result = NULL;
+        if ($array !== false) {
+            foreach ($array as $key=>$question_data){
+                if ($header !== $question_data['category_id']) {
+                    $header = $question_data['category_id'];
+                    $result = findCategoryNameByID($question_data['category_id']);
+                }else {
+                    $result = NULL;
+                }
+                ?>
+
+                <ul id="<? echo strtolower($result)?>" class="cd-faq-group">
+                    <li class="cd-faq-title"><h2>
+
+                            <?
+
+
+
+                            echo $result;
+
+
+                            ?>
+
+
+
+                        </h2>
+                    </li>
+                    <li>
+                        <form action="admin.php" method="post">
+                            <label>
+                                <button type="submit" name="edit_question" value="<?=$key?>">Редактировать</button>
+                            </label>
+                        </form>
+
+                        <form action="admin.php" method="post">
+                            <label>
+                                <button type="submit" name="delete_question" value="<?=$key?>">Удалить</button>
+                            </label>
+                        </form>
+                        <a class="cd-faq-trigger" href="#0"><?=$question_data['question']?></a>
+
+                        <div class="cd-faq-content">
+                            <p><?=$question_data['answer']?></p>
+                        </div> <!-- cd-faq-content -->
+                    </li>
+
+                </ul> <!-- cd-faq-group -->
+
+
+
+                <?
+
             }
-        ?>
 
-		<ul id="<? echo strtolower($result)?>" class="cd-faq-group">
-			<li class="cd-faq-title"><h2>
-
-                    <?
-
-
-
-                   echo $result;
-
-
-                    ?>
-
-
-
-                </h2></li>
-			<li>
-				<a class="cd-faq-trigger" href="#0"><?=$question_data['question']?></a>
-				<div class="cd-faq-content">
-					<p><?=$question_data['answer']?></p>
-				</div> <!-- cd-faq-content -->
-			</li>
-
-		</ul> <!-- cd-faq-group -->
-
-
-
-            <?
-
+        }
+        else {
+            echo "<h1>Нет отвечанных вопросов.</h1>";
         }
         ?>
 
