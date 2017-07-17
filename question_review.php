@@ -5,12 +5,12 @@ include "core.php";
 $result = "";
 $classResult = "hide";
 
-if (!empty($_POST['sender_name']) and !empty($_POST['sender_mail']) and !empty($_POST['category_id']) and !empty($_POST['question']) and !empty($_POST['edit']) and !empty($_SESSION['question_id'])) {
+if (!empty($_POST['sender_name']) and !empty($_POST['sender_mail']) and !empty($_POST['category_id']) and !empty($_POST['question']) and !empty($_POST['edit']) and !empty($_SESSION['question_id']) and !empty($_POST['answer'])) {
     $array = questionsArrayByID($_SESSION['question_id']);
     $array = $array[0];
 
 
-    if (editQuestion($_POST['sender_name'], $_POST['sender_mail'], $_POST['category_id'], $_POST['question'], $array['question_id'])) {
+    if (editQuestion($_POST['sender_name'], $_POST['sender_mail'], $_POST['category_id'], $_POST['question'], $array['question_id'], $_POST['answer'])) {
 
         $result = "Изменения внесены.";
         $classResult = "align-center";
@@ -92,7 +92,13 @@ print_r($_SESSION);*/
         </label>
         <br>
         <label for="textarea">Введите ваш вопрос:
-        <textarea name="question" rows="10" cols="100%" required><?=$array['question']?></textarea>
+            <textarea name="question" rows="10" cols="100%" required><?=$array['question']?></textarea>
+        </label>
+
+        <br>
+
+        <label for="textarea">Введите ответ на вопрос:
+            <textarea name="answer" rows="10" cols="100%" required><?=$array['answer']?></textarea>
         </label>
         <input type="submit" name="edit" value="Изменить">
 

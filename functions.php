@@ -252,14 +252,15 @@ function askQuestion($user, $email, $category, $question) {
 
 /* EDIT QUESTION*/
 
-function editQuestion($sender_name, $email, $category_id, $question, $question_id) {
+function editQuestion($sender_name, $email, $category_id, $question, $question_id, $answer) {
     $pdo = connect();
-    $sql = $pdo->prepare('UPDATE questions SET sender_name = :sender_name, email = :email, category_id = :category_id, question = :question WHERE question_id = :question_id');
+    $sql = $pdo->prepare('UPDATE questions SET sender_name = :sender_name, email = :email, category_id = :category_id, question = :question, answer = :answer WHERE question_id = :question_id');
     $sql->bindParam(':sender_name',$sender_name, PDO::PARAM_STR);
     $sql->bindParam(':email',$email, PDO::PARAM_STR);
     $sql->bindParam(':category_id',$category_id, PDO::PARAM_INT);
     $sql->bindParam(':question',$question, PDO::PARAM_STR);
     $sql->bindParam(':question_id',$question_id, PDO::PARAM_INT);
+    $sql->bindParam(':answer',$answer, PDO::PARAM_STR);
     $sql->execute();
 
         return true;
@@ -464,7 +465,38 @@ function deleteQuestionByID ($id) {
 }
 
 
-/* MOVE QUESTION */
+/* HIDE QUESTION */
+
+
+function publishQuestion ($question_id) {
+    $pdo = connect();
+    $sql = $pdo->prepare('UPDATE questions SET publish = 1 WHERE question_id = :question_id');
+    $sql->bindParam(':question_id', $question_id, PDO::PARAM_INT);
+    $sql = $sql->execute();
+    if ($sql) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+/* PUBLISH QUESTION */
+
+
+function hideQuestion ($question_id) {
+    $pdo = connect();
+    $sql = $pdo->prepare('UPDATE questions SET publish = 0 WHERE question_id = :question_id');
+    $sql->bindParam(':question_id', $question_id, PDO::PARAM_INT);
+    $sql = $sql->execute();
+    if ($sql) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
 
 
 
@@ -486,11 +518,55 @@ function deleteQuestionsInCategory($category_id) {
 }
 
 
+/* THEME COUNTER - МОЖНО ПЕРЕДЕЛАТЬ ДЛЯ РАБОТЫ ЧЕРЕЗ МАССИВЫ УМЕНЬШИВ ОБРАЩЕНИЕ К БАЗЕ*/
+
+function themeStats() {
+    $pdo = connect();
+    $sql = $pdo->prepare('SELECT * FROM category');
+    $sql->execute();
+    $sql = $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+    $categoryArray = $sql;
+
+    $totalCategory = [];
+    $resultArray = [];
 
 
+    foreach ($categoryArray as $category_id=>$value) {
+        /* COUNT TOTAL QUESTION FOR EACH CATEGORY */
+        $sql = $pdo->prepare('SELECT COUNT(question_id) FROM questions WHERE category_id = :category_id');
+        $sql->bindParam(':category_id', $category_id, PDO::PARAM_INT);
+        $sql->execute();
+        $sql = $sql->fetchAll();
+        $statistic_data = $sql[0]['COUNT(question_id)'];
+
+        $sql = $pdo->prepare('SELECT COUNT(question_id) FROM questions WHERE category_id = :category_id and answer IS NULL');
+        $sql->bindParam(':category_id', $category_id, PDO::PARAM_INT);
+        $sql->execute();
+        $sql = $sql->fetchAll();
+        $no_answer = $sql[0]['COUNT(question_id)'];
 
 
+        $sql = $pdo->prepare('SELECT COUNT(question_id) FROM questions WHERE category_id = :category_id and publish = 1');
+        $sql->bindParam(':category_id', $category_id, PDO::PARAM_INT);
+        $sql->execute();
+        $sql = $sql->fetchAll();
+        $published = $sql[0]['COUNT(question_id)'];
 
+
+        $resultArray[] = [
+            'category_id'=>$category_id,
+            'category'=>$value[0],
+            'count'=>$statistic_data,
+            'published'=>$published,
+            'no_answer'=>$no_answer
+        ];
+
+    }
+
+    return $resultArray;
+
+
+}
 
 
 

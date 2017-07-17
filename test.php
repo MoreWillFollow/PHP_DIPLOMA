@@ -37,32 +37,43 @@
 error_reporting(E_ALL);
 echo "<pre>";
 
-function countQuestionByTheme ($category_id) {
+function themeStats() {
     $pdo = connect();
-    $sql = $pdo -> prepare('SELECT COUNT(question_id)
-FROM questions;');
-    $sql = $sql->execute();
+    $sql = $pdo->prepare('SELECT * FROM category');
+    $sql->execute();
+    $sql = $sql->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+    $categoryArray = $sql;
 
-    return $sql;
-    
+    $totalCategory = [];
+    $resultArray = [];
+
+
+    foreach ($categoryArray as $category_id=>$value) {
+        /* COUNT TOTAL QUESTION FOR EACH CATEGORY */
+        $sql = $pdo->prepare('SELECT COUNT(question_id) FROM questions WHERE category_id = :category_id and answer IS NULL');
+        $sql->bindParam(':category_id', $category_id, PDO::PARAM_INT);
+        $sql->execute();
+        $sql = $sql->fetchAll();
+        $unpublished = $sql[0]['COUNT(question_id)'];
+        $resultArray[] = [
+            'unpublished'=>$unpublished
+        ];
+
+    }
+
+    return $resultArray;
+
+
+
 
 }
 
+$array = themeStats();
+
+print_r($array);
 
 
-/*
-function countQuestionByTheme ($category_id) {
-    $pdo = connect();
-    $sql = $pdo -> prepare('SELECT COUNT (question_id) FROM questions WHERE category_id = :category_id');
-    $sql -> bindParam(':category_id', $category_id, PDO::PARAM_INT);
-    $sql = $sql->execute();
 
-    return $sql;
-
-
-}*/
-
-var_dump(countQuestionByTheme(2));
 
 
 

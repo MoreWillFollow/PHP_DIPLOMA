@@ -6,6 +6,13 @@ include "core.php";
 print_r($_POST);*/
 
 if (isMethodPost()) {
+    if (!empty($_POST['publish_question'])) {
+        publishQuestion($_POST['publish_question']);
+    }
+
+    if (!empty($_POST['publish_question'])) {
+        publishQuestion($_POST['publish_question']);
+    }
 
     if (!empty($_POST['category_delete'])) {
         deleteQuestionsInCategory($_POST['category_delete']);
@@ -218,16 +225,29 @@ if (isMethodPost()) {
             <button type="submit">Добавить</button>
         </form>
     </details>
-    <details>
+    <details open>
         <summary>Список тем и статистика</summary>
         <table>
             <tr>
                 <th>Тема</th>
-                <th>Без ответов</th>
+                <th>Всего вопросов</th>
                 <th>Опубликовано</th>
                 <th>Без ответов</th>
-                <th>Всего вопросов</th>
             </tr>
+
+
+            <?
+            $array = themeStats();
+            foreach ($array as $key => $value) {
+                echo "<tr>";
+                echo "<td>".$value['category']."</td>";
+                echo "<td>".$value['count']."</td>";
+                echo "<td>".$value['published']."</td>";
+                echo "<td>".$value['no_answer']."</td>";
+                echo "</tr>";
+            }
+            ?>
+
         </table>
     </details>
 
@@ -237,7 +257,7 @@ if (isMethodPost()) {
     <hr>
 
 
-    <details>
+    <details open>
         <summary>Список вопросов без ответов</summary>
 
         <table>
@@ -253,44 +273,52 @@ if (isMethodPost()) {
             </tr>
             <?
             $array = unansweredQuestionsArray();
-            foreach ($array as $key=>$value) {
-                echo "<tr>";
-                echo "<td>".$value['question_id']."</td>";
-                echo "<td>".$value['sender_name']."</td>";
-                echo "<td>".$value['email']."</td>";
-                echo "<td>".findCategoryNameByID($value['category_id'])."</td>";
-                echo "<td>".$value['question']."</td>";
-                echo "<td>".$value['answer']."</td>";
-                echo "<td>".publishedOrNot($value['publish'])."</td>";
-                echo "<td>";
-                ?>
 
-                <form action="admin.php" method="post">
-                    <label>
-                        <button type="submit" name="edit_question" value="<?=$value['question_id']?>">Редактировать</button>
-                    </label>
-                </form>
+            if (!empty($array)) {
+                foreach ($array as $key=>$value) {
+                    echo "<tr>";
+                    echo "<td>".$value['question_id']."</td>";
+                    echo "<td>".$value['sender_name']."</td>";
+                    echo "<td>".$value['email']."</td>";
+                    echo "<td>".findCategoryNameByID($value['category_id'])."</td>";
+                    echo "<td>".$value['question']."</td>";
+                    echo "<td>".$value['answer']."</td>";
+                    echo "<td>".publishedOrNot($value['publish'])."</td>";
+                    echo "<td>";
+                    ?>
 
-                <form action="admin.php" method="post">
-                    <label>
-                        <button type="submit" name="delete_question" value="<?=$value['question_id']?>">Удалить</button>
-                    </label>
-                </form>
+                    <form action="admin.php" method="post">
+                        <label>
+                            <button type="submit" name="edit_question" value="<?=$value['question_id']?>">Редактировать</button>
+                        </label>
+                    </form>
 
-                <?
-                echo "</td>";
-                echo "<tr>";
+                    <form action="admin.php" method="post">
+                        <label>
+                            <button type="submit" name="delete_question" value="<?=$value['question_id']?>">Удалить</button>
+                        </label>
+                    </form>
+
+                    <?
+                    echo "</td>";
+                    echo "<tr>";
 
 
+                }
             }
+            else {
+                echo "<br>Все вопросы отвечены или их нет<br><br><br>";
+            }
+
+
             ?>
 
 
         </table>
 
     </details>
-
-    <details>
+<br>
+    <details open>
         <summary>Список всех вопросов и статусы</summary>
 
         <table>
@@ -307,35 +335,47 @@ if (isMethodPost()) {
             </tr>
             <?
             $array = allQuestionsArray();
-            foreach ($array as $key=>$value) {
-                echo "<tr>";
-                echo "<td>".$value['question_id']."</td>";
-                echo "<td>".$value['sender_name']."</td>";
-                echo "<td>".$value['email']."</td>";
-                echo "<td>".findCategoryNameByID($value['category_id'])."</td>";
-                echo "<td>".$value['question']."</td>";
-                echo "<td>".$value['answer']."</td>";
-                echo "<td>".publishedOrNot($value['publish'])."</td>";
-                echo "<td>".$value['date_added']."</td>";
-                echo "<td>";
-                ?>
+            if (!empty($array)) {
+                foreach ($array as $key=>$value) {
+                    echo "<tr>";
+                    echo "<td>".$value['question_id']."</td>";
+                    echo "<td>".$value['sender_name']."</td>";
+                    echo "<td>".$value['email']."</td>";
+                    echo "<td>".findCategoryNameByID($value['category_id'])."</td>";
+                    echo "<td>".$value['question']."</td>";
+                    echo "<td>".$value['answer']."</td>";
+                    echo "<td>".publishedOrNot($value['publish'])."</td>";
+                    echo "<td>".$value['date_added']."</td>";
+                    echo "<td>";
+                    ?>
 
-                <form action="admin.php" method="post">
-                    <label>
-                        <button type="submit" name="edit_question" value="<?=$value['question_id']?>">Редактировать</button>
-                    </label>
-                </form>
+                    <form action="admin.php" method="post">
+                        <label>
+                            <button type="submit" name="edit_question" value="<?=$value['question_id']?>">Редактировать</button>
+                        </label>
+                    </form>
 
-                <form action="admin.php" method="post">
-                    <label>
-                        <button type="submit" name="delete_question" value="<?=$value['question_id']?>">Удалить</button>
-                    </label>
-                </form>
+                    <form action="admin.php" method="post">
+                        <label>
+                            <button type="submit" name="delete_question" value="<?=$value['question_id']?>">Удалить</button>
+                        </label>
+                    </form>
 
-                <?
-                echo "</td>";
-                echo "<tr>";
+                    <form action="admin.php" method="post">
+                        <label>
+                            <button type="submit" name="publish_question" value="<?=$value['question_id']?>">Опубликовать</button>
+                        </label>
+                    </form>
 
+                    <?
+                    echo "</td>";
+                    echo "<tr>";
+
+
+                }
+            }
+            else {
+                echo "<br>Вопросов нет<br><br><br>";
 
             }
             ?>

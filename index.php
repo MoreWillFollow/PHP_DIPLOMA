@@ -3,6 +3,15 @@ error_reporting(E_ALL);
 include "autoload.php";
 include "core.php";
 
+
+if (isMethodPost()) {
+    if (!empty($_POST['hide_question'])) {
+        hideQuestion($_POST['hide_question']);
+    }
+}
+
+
+
 /*echo "<br><pre>";
 var_dump($_SESSION);
 var_dump($_COOKIE);*/
@@ -30,6 +39,7 @@ var_dump($_COOKIE);*/
     <ul>
         <li><a class="admin_link" href="admin.php" target="_blank">Admin</a></li>
         <li><a class="admin_link" href="exit.php" target="_blank">Выйти</a></li>
+        <li><a class="admin_link" href="ask.php" target="_blank">Задать вопрос</a></li>
     </ul> <!-- cd-faq-categories -->
 </section>
 
@@ -95,6 +105,12 @@ var_dump($_COOKIE);*/
                         <form action="admin.php" method="post">
                             <label>
                                 <button type="submit" name="delete_question" value="<?=$key?>">Удалить</button>
+                            </label>
+                        </form>
+
+                        <form action="index.php" method="post">
+                            <label>
+                                <button type="submit" name="hide_question" value="<?=$key?>">Скрыть вопрос</button>
                             </label>
                         </form>
                         <a class="cd-faq-trigger" href="#0"><?=$question_data['question']?></a>
