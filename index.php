@@ -37,9 +37,19 @@ var_dump($_COOKIE);*/
 
 <section class="admin">
     <ul>
-        <li><a class="admin_link" href="admin.php" target="_blank">Admin</a></li>
-        <li><a class="admin_link" href="exit.php" target="_blank">Выйти</a></li>
-        <li><a class="admin_link" href="ask.php" target="_blank">Задать вопрос</a></li>
+
+        <?
+        if (!empty($_SESSION['admin']) and $_SESSION['admin'] == 1) {
+
+          echo "<li><a class=\"admin_link\" href=\"admin.php\" target=\"_blank\">Admin</a></li>
+        <li><a class=\"admin_link\" href=\"exit.php\">Выйти</a></li>";
+        }
+        else {
+            echo "<li><a class=\"admin_link\" href=\"login.php\">Войти</a></li>
+";
+        }
+        ?>
+        <li><a class="admin_link" href="ask.php">Задать вопрос</a></li>
     </ul> <!-- cd-faq-categories -->
 </section>
 
